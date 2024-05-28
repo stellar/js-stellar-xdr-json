@@ -247,20 +247,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
-name = "js-stellar-xdr-json"
-version = "0.0.0"
-dependencies = [
- "console_error_panic_hook",
- "schemars",
- "serde-json-wasm",
- "serde-wasm-bindgen",
- "serde_json",
- "stellar-xdr",
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "js-sys"
 version = "0.3.69"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -479,6 +465,20 @@ dependencies = [
  "serde_json",
  "serde_with",
  "stellar-strkey",
+]
+
+[[package]]
+name = "stellar-xdr-json"
+version = "0.0.0"
+dependencies = [
+ "console_error_panic_hook",
+ "schemars",
+ "serde-json-wasm",
+ "serde-wasm-bindgen",
+ "serde_json",
+ "stellar-xdr",
+ "wasm-bindgen",
+ "wasm-bindgen-test",
 ]
 
 [[package]]

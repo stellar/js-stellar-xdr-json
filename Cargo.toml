@@ -1,5 +1,5 @@
 [package]
-name = "js-stellar-xdr-json"
+name = "stellar-xdr-json"
 edition = "2021"
 publish = false
 
