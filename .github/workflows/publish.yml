@@ -1,0 +1,10 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+
+  publish:
+    # TODO: Implement publishing to npm.
