@@ -1,4 +1,4 @@
-mod utils;
+// mod utils;
 
 use std::str::FromStr;
 
@@ -24,7 +24,7 @@ pub fn schema(type_variant: &str) -> Result<String, String> {
     let settings = SchemaSettings::draft07();
     let generator = settings.into_generator();
     let schema = t.json_schema(generator);
-    serde_json_wasm::to_string(&schema).map_err(|e| format!("{e}"))
+    serde_json::to_string(&schema).map_err(|e| format!("{e}"))
 }
 
 /// Identifies which XDR types the given XDR can decode to completely.
@@ -54,7 +54,7 @@ pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String
         .map_err(|e| format!("{e}"))?;
     // TODO: Return a native JS value.
     // let js = serde_wasm_bindgen::to_value(&value).map_err(|e| format!("{e}"))?;
-    let json = serde_json_wasm::to_string(&value).map_err(|e| format!("{e}"))?;
+    let json = serde_json::to_string(&value).map_err(|e| format!("{e}"))?;
     Ok(json)
 }
 
