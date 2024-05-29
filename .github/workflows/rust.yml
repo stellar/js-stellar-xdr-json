@@ -68,10 +68,10 @@ jobs:
     - run: rustup update
     - run: cargo version
     - run: rustup target add wasm32-unknown-unknown
-    - run: wasm-pack build
+    - run: make build
     - uses: actions/upload-artifact@v4
       with:
         name: build
         path: pkg/
-    - run: wasm-pack test --headless --firefox
+    - run: make test
     - run: git add -N . && git diff HEAD --exit-code
