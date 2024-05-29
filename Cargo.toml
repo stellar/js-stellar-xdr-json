@@ -25,3 +25,15 @@ rev = "89a8bcde36aeda551cb0e3f9aa3e9fcf315fe1cc"
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
+
+[profile.dev]
+opt-level = "z"
+debug = 0
+strip = "symbols"
+
+[profile.release]
+opt-level = "z"
+debug = 0
+strip = "symbols"
+debug-assertions = false
+
