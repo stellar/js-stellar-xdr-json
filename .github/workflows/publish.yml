@@ -19,16 +19,7 @@ jobs:
         registry-url: 'https://registry.npmjs.org'
         always-auth: true
 
-    - name: Install Depencencies
-      run: yarn install
-
-    - name: Build, Test, and Package
-      run: yarn preversion
-      env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-    - name: Publish npm package to both places
-      run: |
-        yarn publish --access public
+    - run: webpack build
+    - run: webpack publish
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
