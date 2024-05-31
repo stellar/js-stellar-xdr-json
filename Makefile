@@ -1,9 +1,9 @@
 build:
-	wasm-pack build --no-typescript --release --target bundler --out-dir pkg/bundler/
+	wasm-pack build --release --target bundler --out-dir pkg/bundler/
 	sed -i'.bak' -e 's#"stellar-xdr-json"#"@stellar/stellar-xdr-json"#' pkg/bundler/package.json
-	wasm-pack build --no-typescript --release --target web --out-dir pkg/web/
+	wasm-pack build --release --target web --out-dir pkg/web/
 	sed -i'.bak' -e 's#"stellar-xdr-json"#"@stellar/stellar-xdr-json-web"#' pkg/web/package.json
-	wasm-pack build --no-typescript --release --target deno --out-dir pkg/deno/
+	wasm-pack build --release --target deno --out-dir pkg/deno/
 	ls -lah pkg/**/*.wasm
 
 test:
