@@ -1,8 +1,7 @@
-// mod utils;
-
-use std::str::FromStr;
+mod console_error_panic_hook;
 
 use schemars::gen::SchemaSettings;
+use std::str::FromStr;
 use stellar_xdr::curr::{Limits, Type, TypeVariant, WriteXdr};
 use wasm_bindgen::prelude::*;
 
