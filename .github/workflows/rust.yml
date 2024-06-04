@@ -71,10 +71,6 @@ jobs:
     - run: make build
     - uses: actions/upload-artifact@v4
       with:
-        name: bundler
-        path: pkg/bundler
-    - uses: actions/upload-artifact@v4
-      with:
         name: web
         path: pkg/web
     - uses: actions/upload-artifact@v4
