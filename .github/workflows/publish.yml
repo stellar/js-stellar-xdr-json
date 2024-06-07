@@ -26,6 +26,6 @@ jobs:
         name: wasm-bindgen-cli
         version: 0.2.92
     - run: make build
-    - run: wasm-pack publish --target web
+    - run: wasm-pack publish --access=public --target web
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
