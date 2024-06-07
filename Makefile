@@ -7,7 +7,7 @@ build-web: clean
 
 build-deno: clean
 	wasm-pack build --release --target deno --out-dir pkg-deno
-	ls -lah pkg/**/*.wasm
+	ls -lah pkg/*.wasm
 
 clean:
 	rm -fr pkg pkg-deno
