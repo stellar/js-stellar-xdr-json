@@ -1,8 +1,11 @@
 mod console_error_panic_hook;
 
 use schemars::gen::SchemaSettings;
+use soroban_spec_tools::Spec;
 use std::str::FromStr;
-use stellar_xdr::curr::{Limits, Type, TypeVariant, WriteXdr};
+use stellar_xdr::curr::{
+    InvokeContractArgs, Limits, ReadXdr, ScAddress, ScVal, Type, TypeVariant, WriteXdr,
+};
 use wasm_bindgen::prelude::*;
 
 /// Returns a list of XDR types.
@@ -75,4 +78,65 @@ pub fn encode(type_variant: String, json: String) -> Result<String, String> {
         .to_xdr_base64(Limits::none())
         .map_err(|e| format!("{e}"))?;
     Ok(b64)
+}
+
+/// Given a spec, function name, and JSON arguments, returns the XDR base64 encoding of the arguments.
+pub fn func_input_to_xdr(
+    spec_base64: String,
+    contract_address: String,
+    name: String,
+    args_json: String,
+) -> Result<String, String> {
+    let spec = Spec::parse_base64(&spec_base64).map_err(|e| format!("{e}"))?;
+    let func = spec.find_function(&name).map_err(|e| format!("{e}"))?;
+    let contract_address = ScAddress::from_xdr_base64(contract_address, Limits::none()).unwrap();
+    let json_args: serde_json::Value =
+        serde_json::from_str(&args_json).map_err(|e| format!("{e}"))?;
+    let args = func
+        .inputs
+        .iter()
+        .map(|arg| {
+            let name = arg.name.to_utf8_string().unwrap();
+            let json_arg = json_args
+                .get(&name)
+                .ok_or_else(|| format!("missing argument: {name}"))?;
+            spec.from_json(json_arg, &arg.type_)
+                .map_err(|e| format!("{e}"))
+        })
+        .collect::<Result<Vec<_>, String>>()?;
+    InvokeContractArgs {
+        contract_address,
+        args: args.try_into().unwrap(),
+        function_name: name.try_into().unwrap(),
+    }
+    .to_xdr_base64(Limits::none())
+    .map_err(|e| format!("{e}"))
+}
+/// Given a spec, function name, and base64 XDR result, returns the JSON encoded String of the result.
+pub fn func_res_from_xdr(
+    spec_base64: String,
+    name: String,
+    res_base64: String,
+) -> Result<String, String> {
+    let spec = Spec::parse_base64(&spec_base64).map_err(|e| format!("{e}"))?;
+    let output = spec
+        .find_function(&name)
+        .map_err(|e| format!("{e}"))?
+        .outputs
+        .first()
+        .unwrap();
+    Ok(spec
+        .xdr_to_json(
+            &ScVal::from_xdr_base64(res_base64, Limits::none()).unwrap(),
+            output,
+        )
+        .unwrap()
+        .to_string())
+}
+
+/// Given a spec, Return the JSON schema for the contract
+pub fn contract_schema(spec_base64: String) -> Result<String, String> {
+    let spec = Spec::parse_base64(&spec_base64).map_err(|e| format!("{e}"))?;
+    let json_schema = spec.to_json_schema().map_err(|e| format!("{e}"))?;
+    Ok(json_schema.to_string())
 }
