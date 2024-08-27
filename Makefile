@@ -13,4 +13,5 @@ clean:
 	rm -fr pkg pkg-deno
 
 test:
+	cargo test --test tests
 	wasm-pack test --headless --firefox
