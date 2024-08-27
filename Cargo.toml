@@ -6,10 +6,6 @@ publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
-# Crate contains no rust docs or doctests as it is not published to docs.rs.
-doctest = false
-# Crate contains no tests, and all tests live outside in the tests folder.
-test = false
 
 [features]
 default = ["console_error_panic_hook"]
