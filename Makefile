@@ -1,6 +1,6 @@
 build: clean
 	wasm-pack build --release --target web
-	deno --allow-read=pkg/ --allow-write=pkg/ scripts/post-build.ts
+	node scripts/post-build.mjs
 	ls -lah pkg/*.wasm pkg/*.js
 
 clean:
