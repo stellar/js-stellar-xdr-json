@@ -71,11 +71,6 @@ jobs:
     - run: make build
     - uses: actions/upload-artifact@v4
       with:
-        name: web
-        path: pkg/web
-    - uses: actions/upload-artifact@v4
-      with:
-        name: deno
-        path: pkg/deno
+        path: pkg
     - run: make test
     - run: git add -N . && git diff HEAD --exit-code
