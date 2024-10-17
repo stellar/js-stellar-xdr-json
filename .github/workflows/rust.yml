@@ -56,7 +56,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: stellar/actions/rust-cache@main
-    - uses: stellar/binaries@v23
+    - uses: stellar/binaries@v31
       with:
         name: wasm-pack
         version: 0.13.0

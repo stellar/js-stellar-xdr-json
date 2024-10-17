@@ -17,7 +17,7 @@ jobs:
         node-version: '18.x'
         registry-url: 'https://registry.npmjs.org'
         always-auth: true
-    - uses: stellar/binaries@v23
+    - uses: stellar/binaries@v31
       with:
         name: wasm-pack
         version: 0.13.0
