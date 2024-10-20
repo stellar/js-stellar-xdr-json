@@ -10,9 +10,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         registry-url: 'https://registry.npmjs.org'
@@ -21,7 +21,7 @@ jobs:
       with:
         name: wasm-pack
         version: 0.13.0
-    - uses: stellar/binaries@v23
+    - uses: stellar/binaries@v31
       with:
         name: wasm-bindgen-cli
         version: 0.2.92
