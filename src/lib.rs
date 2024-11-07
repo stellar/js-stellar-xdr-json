@@ -1,8 +1,9 @@
 mod console_error_panic_hook;
 
 use schemars::gen::SchemaSettings;
+use std::io::Cursor;
 use std::str::FromStr;
-use stellar_xdr::curr::{Limits, Type, TypeVariant, WriteXdr};
+use stellar_xdr::curr::{Limited, Limits, Type, TypeVariant, WriteXdr};
 use wasm_bindgen::prelude::*;
 
 /// Returns a list of XDR types.
@@ -61,9 +62,15 @@ pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String
     let decoded_max_len = xdr_base64.len() / 4 * 3;
     // Limit decoding attempts to within the maximum length of the known input.
     let limits = Limits::len(decoded_max_len);
+    let mut cursor = Limited::new(Cursor::new(xdr_base64.as_bytes()), limits);
 
-    let value =
-        Type::from_xdr_base64(type_variant, xdr_base64, limits).map_err(|e| format!("{e}"))?;
+    let value = Type::read_xdr_base64_iter(type_variant, &mut cursor)
+        .collect::<Result<Vec<_>, _>>()
+        .map_err(|e| format!("{e}"))?;
+    if value.len() == 1 {
+        let json = serde_json::to_string(&value[0]).map_err(|e| format!("{e}"))?;
+        return Ok(json);
+    }
     // TODO: Return a native JS value.
     // let js = serde_wasm_bindgen::to_value(&value).map_err(|e| format!("{e}"))?;
     let json = serde_json::to_string(&value).map_err(|e| format!("{e}"))?;
