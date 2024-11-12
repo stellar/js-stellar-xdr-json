@@ -54,7 +54,7 @@ pub fn guess(xdr_base64: String) -> Vec<String> {
 /// Unstable: The API of this function is unstable and will likely be changed to
 /// return a JsValue instead of a JSON string.
 #[wasm_bindgen]
-pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String> {
+pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<String, String> {
     let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;
 
     // Base64 when decoded will have a length at or under this len.
@@ -67,10 +67,32 @@ pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String
     let value = Type::read_xdr_base64_iter(type_variant, &mut cursor)
         .collect::<Result<Vec<_>, _>>()
         .map_err(|e| format!("{e}"))?;
-    if value.len() == 1 {
-        let json = serde_json::to_string(&value[0]).map_err(|e| format!("{e}"))?;
-        return Ok(json);
-    }
+    // TODO: Return a native JS value.
+    // let js = serde_wasm_bindgen::to_value(&value).map_err(|e| format!("{e}"))?;
+    let json = serde_json::to_string(&value).map_err(|e| format!("{e}"))?;
+    Ok(json)
+}
+
+/// Decodes the XDR into JSON.
+///
+/// Accepts a XDR base64 string.
+///
+/// Returns a JSON string.
+///
+/// Unstable: The API of this function is unstable and will likely be changed to
+/// return a JsValue instead of a JSON string.
+#[wasm_bindgen]
+pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String> {
+    let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;
+
+    // Base64 when decoded will have a length at or under this len.
+    // Ref: https://datatracker.ietf.org/doc/html/rfc4648#page-5
+    let decoded_max_len = xdr_base64.len() / 4 * 3;
+    // Limit decoding attempts to within the maximum length of the known input.
+    let limits = Limits::len(decoded_max_len);
+
+    let value =
+        Type::from_xdr_base64(type_variant, xdr_base64, limits).map_err(|e| format!("{e}"))?;
     // TODO: Return a native JS value.
     // let js = serde_wasm_bindgen::to_value(&value).map_err(|e| format!("{e}"))?;
     let json = serde_json::to_string(&value).map_err(|e| format!("{e}"))?;
