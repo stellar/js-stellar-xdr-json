@@ -112,7 +112,7 @@ pub fn encode(type_variant: String, json: String) -> Result<String, String> {
     let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;
     // TODO: Return a native JS value.
     // let t: Type = serde_wasm_bindgen::from_value(js).map_err(|e| format!("{e}"))?;
-    let t = Type::read_json(type_variant, json.as_bytes()).map_err(|e| format!("{e}"))?;
+    let t = Type::from_json(type_variant, json.as_bytes()).map_err(|e| format!("{e}"))?;
     let b64 = t
         .to_xdr_base64(Limits::none())
         .map_err(|e| format!("{e}"))?;
