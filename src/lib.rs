@@ -61,12 +61,12 @@ pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<Vec<Str
     let limits = Limits::len(decoded_max_len);
     let mut cursor = Limited::new(Cursor::new(xdr_base64.as_bytes()), limits);
 
-    let value = Type::read_xdr_base64_iter(type_variant, &mut cursor)
-        .collect::<Result<Vec<_>, _>>()
-        .map_err(|e| format!("{e}"))?;
+    let json = Type::read_xdr_base64_iter(type_variant, &mut cursor)
+        .map(|value| {
+            serde_json::to_string(&value.map_err(|e| format!("{e}"))?).map_err(|e| format!("{e}"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
     // TODO: Return a native JS value.
-    // let js = serde_wasm_bindgen::to_value(&value).map_err(|e| format!("{e}"))?;
-    let json = serde_json::to_string(&value).map_err(|e| format!("{e}"))?;
     Ok(json)
 }
 
