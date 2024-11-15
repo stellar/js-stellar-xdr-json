@@ -45,13 +45,13 @@ pub fn guess(xdr_base64: String) -> Vec<String> {
         .collect()
 }
 
-/// Decodes the XDR into JSON.
+/// Decodes a stream of XDR into an array of JSONs.
 ///
-/// Accepts a XDR base64 string.
+/// Returns an array of JSON strings.
 ///
 /// Returns a JSON string.
 #[wasm_bindgen]
-pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<String, String> {
+pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<Vec<String>, String> {
     let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;
 
     // Base64 when decoded will have a length at or under this len.
