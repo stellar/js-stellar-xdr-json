@@ -50,9 +50,6 @@ pub fn guess(xdr_base64: String) -> Vec<String> {
 /// Accepts a XDR base64 string.
 ///
 /// Returns a JSON string.
-///
-/// Unstable: The API of this function is unstable and will likely be changed to
-/// return a JsValue instead of a JSON string.
 #[wasm_bindgen]
 pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<String, String> {
     let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;

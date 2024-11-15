@@ -488,6 +488,7 @@ fn decode_success() {
         Ok("{\"tx\":{\"tx\":{\"source_account\":\"GDQBDFEKXY7U3YQVVDXRSRAOCSJX3FCRTZVB3FAAUOCT2PYHA6XMSJZK\",\"fee\":101,\"seq_num\":143109800659384097,\"cond\":{\"time\":{\"min_time\":0,\"max_time\":1724705634}},\"memo\":\"none\",\"operations\":[{\"source_account\":null,\"body\":{\"manage_buy_offer\":{\"selling\":\"native\",\"buying\":{\"credit_alphanum4\":{\"asset_code\":\"TFC\",\"issuer\":\"GDS3XDJAA4VY6MJYASIGSIMPHZ7AQNZ54RKLWT7MWCOU5YKYEVCNLVS3\"}},\"buy_amount\":1764350851,\"price\":{\"n\":53601,\"d\":10000000},\"offer_id\":1587737394}}}],\"ext\":\"v0\"},\"signatures\":[{\"hint\":\"0707aec9\",\"signature\":\"ba4c20e56d1a63b61f72484236422676b380aa1115d546f402e394863ec3b5eac7d0a0dc1bbc1af50b72bd0aee437bf41d3e905079dc00ae17825ab7aad8a309\"}]}}".to_string()),
     );
 }
+
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 #[test]
 fn decode_iter_success() {
