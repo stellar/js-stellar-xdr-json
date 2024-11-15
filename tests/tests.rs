@@ -491,6 +491,24 @@ fn decode_success() {
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 #[test]
+fn decode_iter_success() {
+    assert_eq!(
+        stellar_xdr_json::decode_stream(
+            "ScSpecEntry".to_string(),
+            "AAAAAAAAAAAAAAAKaW5pdGlhbGl6ZQAAAAAAAwAAAAAAAAAPdG9rZW5fd2FzbV9oYXNoAAAAA+4AAAAgAAAAAAAAAAd0b2tlbl9hAAAAABMAAAAAAAAAB3Rva2VuX2IAAAAAEwAAAAAAAAAAAAAAAAAAAAhzaGFyZV9pZAAAAAAAAAABAAAAEwAAAAAAAAAAAAAAB2RlcG9zaXQAAAAABQAAAAAAAAACdG8AAAAAABMAAAAAAAAACWRlc2lyZWRfYQAAAAAAAAsAAAAAAAAABW1pbl9hAAAAAAAACwAAAAAAAAAJZGVzaXJlZF9iAAAAAAAACwAAAAAAAAAFbWluX2IAAAAAAAALAAAAAAAAAAAAAAAAAAAABHN3YXAAAAAEAAAAAAAAAAJ0bwAAAAAAEwAAAAAAAAAFYnV5X2EAAAAAAAABAAAAAAAAAANvdXQAAAAACwAAAAAAAAAGaW5fbWF4AAAAAAALAAAAAAAAAAAAAAAAAAAACHdpdGhkcmF3AAAABAAAAAAAAAACdG8AAAAAABMAAAAAAAAADHNoYXJlX2Ftb3VudAAAAAsAAAAAAAAABW1pbl9hAAAAAAAACwAAAAAAAAAFbWluX2IAAAAAAAALAAAAAQAAA+0AAAACAAAACwAAAAsAAAAAAAAAAAAAAAlnZXRfcnNydnMAAAAAAAAAAAAAAQAAA+0AAAACAAAACwAAAAs=".to_string(),
+        ),
+        Ok([r#"{"function_v0":{"doc":"","name":"initialize","inputs":[{"doc":"","name":"token_wasm_hash","type_":{"bytes_n":{"n":32}}},{"doc":"","name":"token_a","type_":"address"},{"doc":"","name":"token_b","type_":"address"}],"outputs":[]}}"#,
+            r#"{"function_v0":{"doc":"","name":"share_id","inputs":[],"outputs":["address"]}}"#,
+            r#"{"function_v0":{"doc":"","name":"deposit","inputs":[{"doc":"","name":"to","type_":"address"},{"doc":"","name":"desired_a","type_":"i128"},{"doc":"","name":"min_a","type_":"i128"},{"doc":"","name":"desired_b","type_":"i128"},{"doc":"","name":"min_b","type_":"i128"}],"outputs":[]}}"#,
+            r#"{"function_v0":{"doc":"","name":"swap","inputs":[{"doc":"","name":"to","type_":"address"},{"doc":"","name":"buy_a","type_":"bool"},{"doc":"","name":"out","type_":"i128"},{"doc":"","name":"in_max","type_":"i128"}],"outputs":[]}}"#,
+            r#"{"function_v0":{"doc":"","name":"withdraw","inputs":[{"doc":"","name":"to","type_":"address"},{"doc":"","name":"share_amount","type_":"i128"},{"doc":"","name":"min_a","type_":"i128"},{"doc":"","name":"min_b","type_":"i128"}],"outputs":[{"tuple":{"value_types":["i128","i128"]}}]}}"#,
+            r#"{"function_v0":{"doc":"","name":"get_rsrvs","inputs":[],"outputs":[{"tuple":{"value_types":["i128","i128"]}}]}}"#
+            ].iter().map(ToString::to_string).collect::<Vec<String>>()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
 fn decode_length_limit_protection() {
     assert_eq!(
         stellar_xdr_json::decode(

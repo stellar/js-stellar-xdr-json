@@ -1,8 +1,9 @@
 mod console_error_panic_hook;
 
 use schemars::gen::SchemaSettings;
+use std::io::Cursor;
 use std::str::FromStr;
-use stellar_xdr::curr::{Limits, Type, TypeVariant, WriteXdr};
+use stellar_xdr::curr::{Limited, Limits, Type, TypeVariant, WriteXdr};
 use wasm_bindgen::prelude::*;
 
 /// Returns a list of XDR types.
@@ -42,6 +43,31 @@ pub fn guess(xdr_base64: String) -> Vec<String> {
         .filter(|v| Type::from_xdr_base64(**v, &xdr_base64, limits.clone()).is_ok())
         .map(|v| v.name().to_string())
         .collect()
+}
+
+/// Decodes a stream of XDR into an array of JSONs.
+///
+/// Returns an array of JSON strings.
+///
+/// Returns a JSON string.
+#[wasm_bindgen]
+pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<Vec<String>, String> {
+    let type_variant = TypeVariant::from_str(&type_variant).map_err(|e| format!("{e}"))?;
+
+    // Base64 when decoded will have a length at or under this len.
+    // Ref: https://datatracker.ietf.org/doc/html/rfc4648#page-5
+    let decoded_max_len = xdr_base64.len() / 4 * 3;
+    // Limit decoding attempts to within the maximum length of the known input.
+    let limits = Limits::len(decoded_max_len);
+    let mut cursor = Limited::new(Cursor::new(xdr_base64.as_bytes()), limits);
+
+    let json = Type::read_xdr_base64_iter(type_variant, &mut cursor)
+        .map(|value| {
+            serde_json::to_string(&value.map_err(|e| format!("{e}"))?).map_err(|e| format!("{e}"))
+        })
+        .collect::<Result<Vec<_>, _>>()?;
+    // TODO: Return a native JS value.
+    Ok(json)
 }
 
 /// Decodes the XDR into JSON.
