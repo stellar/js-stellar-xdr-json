@@ -40,3 +40,5 @@ debug = 0
 strip = "symbols"
 debug-assertions = false
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O", "--enable-bulk-memory"]
