@@ -503,7 +503,7 @@ dependencies = [
 
 [[package]]
 name = "stellar-xdr-json"
-version = "23.0.0-rc.1.1"
+version = "23.0.0-rc.1"
 dependencies = [
  "console_error_panic_hook",
  "schemars 0.8.21",
