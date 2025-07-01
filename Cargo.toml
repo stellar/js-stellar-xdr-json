@@ -1,8 +1,9 @@
 [package]
 name = "stellar-xdr-json"
-version = "22.0.0-rc.1.1"
+version = "23.0.0-rc.1.1"
 edition = "2021"
 publish = false
+rust-version = "1.86.0"
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -20,7 +21,7 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 # serde-wasm-bindgen = "0.6.5"
 
 [dependencies.stellar-xdr]
-version = "22.0.0"
+version = "23.0.0-rc.1"
 features = ["std", "curr", "base64", "serde", "serde_json", "schemars"]
 # git = "https://github.com/stellar/rs-stellar-xdr"
 # rev = "89a8bcde36aeda551cb0e3f9aa3e9fcf315fe1cc"
@@ -39,3 +40,5 @@ debug = 0
 strip = "symbols"
 debug-assertions = false
 
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = ["-O", "--enable-bulk-memory"]
