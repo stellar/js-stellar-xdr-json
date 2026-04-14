@@ -32,3 +32,5 @@ jobs:
         version: 0.2.92
     - run: make build
     - run: wasm-pack publish --access=public --target web
+      env:
+        NPM_CONFIG_PROVENANCE: true
