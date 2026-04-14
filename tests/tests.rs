@@ -1,5 +1,7 @@
 //! Test suite for the Web and headless browsers.
 
+use stellar_xdr::curr::{Limits, ScVal, ScVec, VecM, WriteXdr};
+
 #[cfg(target_arch = "wasm32")]
 extern crate wasm_bindgen_test;
 #[cfg(target_arch = "wasm32")]
@@ -7,6 +9,23 @@ use wasm_bindgen_test::*;
 
 #[cfg(target_arch = "wasm32")]
 wasm_bindgen_test_configure!(run_in_browser);
+
+/// Build a base64-encoded XDR ScVal with `depth` levels of nested ScVec,
+/// each containing a single element, with an ScVal::U32(0) at the innermost level.
+///
+/// Each nesting level consumes 4 depth units in stellar-xdr because the
+/// read path passes through 4 `with_limited_depth` calls:
+///   ScVal (union) → Option<ScVec> (pointer) → ScVec (typedef) → VecM<ScVal> (var-length array)
+fn build_nested_scval_xdr(depth: usize) -> String {
+    let mut val = ScVal::U32(0);
+    for _ in 0..depth / 4 {
+        val = ScVal::Vec(Some(ScVec(VecM::try_from(vec![val]).unwrap())));
+    }
+    val.to_xdr_base64(Limits::none()).unwrap()
+}
+
+// TxEnvelope
+const TX_ENV_XDR: &str = "AAAAAgAAAADgEZSKvj9N4hWo7xlEDhSTfZRRnmodlACjhT0/BweuyQAAAGUB/G2bAC33IQAAAAEAAAAAAAAAAAAAAABmzOtiAAAAAAAAAAEAAAAAAAAADAAAAAAAAAABVEZDAAAAAADlu40gByuPMTgEkGkhjz5+CDc95FS7T+ywnU7hWCVE1QAAAABpKduDAADRYQCYloAAAAAAXqLzMgAAAAAAAAABBweuyQAAAEC6TCDlbRpjth9ySEI2QiZ2s4CqERXVRvQC45SGPsO16sfQoNwbvBr1C3K9Cu5De/QdPpBQedwArheCWreq2KMJ";
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
 #[test]
@@ -487,10 +506,18 @@ fn decode_success() {
     assert_eq!(
         stellar_xdr_json::decode(
             "TransactionEnvelope".to_string(),
-            "AAAAAgAAAADgEZSKvj9N4hWo7xlEDhSTfZRRnmodlACjhT0/BweuyQAAAGUB/G2bAC33IQAAAAEAAAAAAAAAAAAAAABmzOtiAAAAAAAAAAEAAAAAAAAADAAAAAAAAAABVEZDAAAAAADlu40gByuPMTgEkGkhjz5+CDc95FS7T+ywnU7hWCVE1QAAAABpKduDAADRYQCYloAAAAAAXqLzMgAAAAAAAAABBweuyQAAAEC6TCDlbRpjth9ySEI2QiZ2s4CqERXVRvQC45SGPsO16sfQoNwbvBr1C3K9Cu5De/QdPpBQedwArheCWreq2KMJ".to_string(),
+            TX_ENV_XDR.to_string(),
         ),
         Ok("{\"tx\":{\"tx\":{\"source_account\":\"GDQBDFEKXY7U3YQVVDXRSRAOCSJX3FCRTZVB3FAAUOCT2PYHA6XMSJZK\",\"fee\":101,\"seq_num\":\"143109800659384097\",\"cond\":{\"time\":{\"min_time\":\"0\",\"max_time\":\"1724705634\"}},\"memo\":\"none\",\"operations\":[{\"source_account\":null,\"body\":{\"manage_buy_offer\":{\"selling\":\"native\",\"buying\":{\"credit_alphanum4\":{\"asset_code\":\"TFC\",\"issuer\":\"GDS3XDJAA4VY6MJYASIGSIMPHZ7AQNZ54RKLWT7MWCOU5YKYEVCNLVS3\"}},\"buy_amount\":\"1764350851\",\"price\":{\"n\":53601,\"d\":10000000},\"offer_id\":\"1587737394\"}}}],\"ext\":\"v0\"},\"signatures\":[{\"hint\":\"0707aec9\",\"signature\":\"ba4c20e56d1a63b61f72484236422676b380aa1115d546f402e394863ec3b5eac7d0a0dc1bbc1af50b72bd0aee437bf41d3e905079dc00ae17825ab7aad8a309\"}]}}".to_string()),
     );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_failure() {
+    let truncated_xdr = TX_ENV_XDR[..TX_ENV_XDR.len() - 1].to_string();
+
+    assert!(stellar_xdr_json::decode("TransactionEnvelope".to_string(), truncated_xdr,).is_err());
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
@@ -515,11 +542,30 @@ fn decode_iter_success() {
 #[test]
 fn decode_length_limit_protection() {
     assert_eq!(
-        stellar_xdr_json::decode(
-            "ScMetaV0".to_string(),
-            "AAAAAgAAAADgEZSKvj9N4hWo7xlEDhSTfZRRnmodlACjhT0/BweuyQAAAGUB/G2bAC33IQAAAAEAAAAAAAAAAAAAAABmzOtiAAAAAAAAAAEAAAAAAAAADAAAAAAAAAABVEZDAAAAAADlu40gByuPMTgEkGkhjz5+CDc95FS7T+ywnU7hWCVE1QAAAABpKduDAADRYQCYloAAAAAAXqLzMgAAAAAAAAABBweuyQAAAEC6TCDlbRpjth9ySEI2QiZ2s4CqERXVRvQC45SGPsO16sfQoNwbvBr1C3K9Cu5De/QdPpBQedwArheCWreq2KMJ".to_string(),
-        ),
+        stellar_xdr_json::decode("ScMetaV0".to_string(), TX_ENV_XDR.to_string()),
         Err("length limit exceeded".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_depth_limit_protection() {
+    assert!(stellar_xdr_json::decode("ScVal".to_string(), build_nested_scval_xdr(499)).is_ok());
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), build_nested_scval_xdr(500)),
+        Err("depth limit exceeded".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_stream_depth_limit_protection() {
+    assert!(
+        stellar_xdr_json::decode_stream("ScVal".to_string(), build_nested_scval_xdr(499)).is_ok()
+    );
+    assert_eq!(
+        stellar_xdr_json::decode_stream("ScVal".to_string(), build_nested_scval_xdr(500)),
+        Err("depth limit exceeded".to_string()),
     );
 }
 
@@ -527,10 +573,20 @@ fn decode_length_limit_protection() {
 #[test]
 fn guess() {
     assert_eq!(
-        stellar_xdr_json::guess("AAAAAgAAAADgEZSKvj9N4hWo7xlEDhSTfZRRnmodlACjhT0/BweuyQAAAGUB/G2bAC33IQAAAAEAAAAAAAAAAAAAAABmzOtiAAAAAAAAAAEAAAAAAAAADAAAAAAAAAABVEZDAAAAAADlu40gByuPMTgEkGkhjz5+CDc95FS7T+ywnU7hWCVE1QAAAABpKduDAADRYQCYloAAAAAAXqLzMgAAAAAAAAABBweuyQAAAEC6TCDlbRpjth9ySEI2QiZ2s4CqERXVRvQC45SGPsO16sfQoNwbvBr1C3K9Cu5De/QdPpBQedwArheCWreq2KMJ".to_string()),
-        &[
-            "FeeBumpTransactionInnerTx",
-            "TransactionEnvelope",
-        ],
+        stellar_xdr_json::guess(TX_ENV_XDR.to_string()),
+        &["FeeBumpTransactionInnerTx", "TransactionEnvelope",],
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn guess_depth_limit_protection() {
+    assert_eq!(
+        stellar_xdr_json::guess(build_nested_scval_xdr(499)),
+        &["ScVal"],
+    );
+    assert_eq!(
+        stellar_xdr_json::guess(build_nested_scval_xdr(500)),
+        &[] as &[String],
     );
 }

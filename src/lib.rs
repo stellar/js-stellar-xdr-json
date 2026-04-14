@@ -6,6 +6,9 @@ use std::str::FromStr;
 use stellar_xdr::curr::{Limited, Limits, Type, TypeVariant, WriteXdr};
 use wasm_bindgen::prelude::*;
 
+// This is set to mirror https://github.com/stellar/rs-soroban-env/blob/main/soroban-env-host/src/budget/limits.rs#L14
+const XDR_MAX_DEPTH: u32 = 500;
+
 /// Returns a list of XDR types.
 #[wasm_bindgen]
 pub fn types() -> Vec<String> {
@@ -35,8 +38,12 @@ pub fn guess(xdr_base64: String) -> Vec<String> {
     // Base64 when decoded will have a length at or under this len.
     // Ref: https://datatracker.ietf.org/doc/html/rfc4648#page-5
     let decoded_max_len = xdr_base64.len() / 4 * 3;
-    // Limit decoding attempts to within the maximum length of the known input.
-    let limits = Limits::len(decoded_max_len);
+    // Limit decoding attempts to within the maximum length of the known input
+    // and the maximum supported depth of XDR structures.
+    let limits = Limits {
+        len: decoded_max_len,
+        depth: XDR_MAX_DEPTH,
+    };
 
     TypeVariant::VARIANTS
         .iter()
@@ -57,8 +64,12 @@ pub fn decode_stream(type_variant: String, xdr_base64: String) -> Result<Vec<Str
     // Base64 when decoded will have a length at or under this len.
     // Ref: https://datatracker.ietf.org/doc/html/rfc4648#page-5
     let decoded_max_len = xdr_base64.len() / 4 * 3;
-    // Limit decoding attempts to within the maximum length of the known input.
-    let limits = Limits::len(decoded_max_len);
+    // Limit decoding attempts to within the maximum length of the known input
+    // and the maximum supported depth of XDR structures.
+    let limits = Limits {
+        len: decoded_max_len,
+        depth: XDR_MAX_DEPTH,
+    };
     let mut cursor = Limited::new(Cursor::new(xdr_base64.as_bytes()), limits);
 
     let json = Type::read_xdr_base64_iter(type_variant, &mut cursor)
@@ -85,8 +96,12 @@ pub fn decode(type_variant: String, xdr_base64: String) -> Result<String, String
     // Base64 when decoded will have a length at or under this len.
     // Ref: https://datatracker.ietf.org/doc/html/rfc4648#page-5
     let decoded_max_len = xdr_base64.len() / 4 * 3;
-    // Limit decoding attempts to within the maximum length of the known input.
-    let limits = Limits::len(decoded_max_len);
+    // Limit decoding attempts to within the maximum length of the known input
+    // and the maximum supported depth of XDR structures.
+    let limits = Limits {
+        len: decoded_max_len,
+        depth: XDR_MAX_DEPTH,
+    };
 
     let value =
         Type::from_xdr_base64(type_variant, xdr_base64, limits).map_err(|e| format!("{e}"))?;
@@ -111,7 +126,7 @@ pub fn encode(type_variant: String, json: String) -> Result<String, String> {
     // let t: Type = serde_wasm_bindgen::from_value(js).map_err(|e| format!("{e}"))?;
     let t = Type::from_json(type_variant, json.as_bytes()).map_err(|e| format!("{e}"))?;
     let b64 = t
-        .to_xdr_base64(Limits::none())
+        .to_xdr_base64(Limits::depth(XDR_MAX_DEPTH))
         .map_err(|e| format!("{e}"))?;
     Ok(b64)
 }
