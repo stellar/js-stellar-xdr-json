@@ -4,19 +4,24 @@ on:
   release:
     types: [published]
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
 
   publish:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Install Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
-        node-version: '18.x'
+        node-version: '20.x'
         registry-url: 'https://registry.npmjs.org'
-        always-auth: true
+    - name: Upgrade npm for OIDC trusted publishing
+      run: npm install -g npm@^11.5.1
     - uses: stellar/binaries@v31
       with:
         name: wasm-pack
@@ -28,4 +33,4 @@ jobs:
     - run: make build
     - run: wasm-pack publish --access=public --target web
       env:
-        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        NPM_CONFIG_PROVENANCE: true

@@ -3,6 +3,7 @@ name = "stellar-xdr-json"
 version = "23.0.1"
 edition = "2021"
 publish = false
+repository = "https://github.com/stellar/js-stellar-xdr-json"
 rust-version = "1.86.0"
 
 [lib]
