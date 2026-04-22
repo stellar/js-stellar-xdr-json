@@ -1,6 +1,8 @@
 //! Test suite for the Web and headless browsers.
 
-use stellar_xdr::curr::{Limits, ScVal, ScVec, VecM, WriteXdr};
+use stellar_xdr::curr::{
+    Int128Parts, Int256Parts, Limits, ScVal, ScVec, UInt128Parts, UInt256Parts, VecM, WriteXdr,
+};
 
 #[cfg(target_arch = "wasm32")]
 extern crate wasm_bindgen_test;
@@ -44,6 +46,7 @@ fn list_of_types() {
             "ScpStatementExternalize",
             "ScpEnvelope",
             "ScpQuorumSet",
+            "EncodedLedgerKey",
             "ConfigSettingContractExecutionLanesV0",
             "ConfigSettingContractComputeV0",
             "ConfigSettingContractParallelComputeV0",
@@ -57,6 +60,10 @@ fn list_of_types() {
             "StateArchivalSettings",
             "EvictionIterator",
             "ConfigSettingScpTiming",
+            "FrozenLedgerKeys",
+            "FrozenLedgerKeysDelta",
+            "FreezeBypassTxs",
+            "FreezeBypassTxsDelta",
             "ContractCostParams",
             "ConfigSettingId",
             "ConfigSettingEntry",
@@ -588,5 +595,113 @@ fn guess_depth_limit_protection() {
     assert_eq!(
         stellar_xdr_json::guess(build_nested_scval_xdr(500)),
         &[] as &[String],
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_uint128_parts_renders_as_string() {
+    let value = UInt128Parts { hi: 1, lo: 2 };
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("UInt128Parts".to_string(), xdr),
+        Ok("\"18446744073709551618\"".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_int128_parts_renders_as_string() {
+    let value = Int128Parts { hi: 1, lo: 2 };
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("Int128Parts".to_string(), xdr),
+        Ok("\"18446744073709551618\"".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_uint256_parts_renders_as_string() {
+    let value = UInt256Parts {
+        hi_hi: 1,
+        hi_lo: 2,
+        lo_hi: 3,
+        lo_lo: 4,
+    };
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("UInt256Parts".to_string(), xdr),
+        Ok("\"6277101735386680764516354157049543343084444891548699590660\"".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_int256_parts_renders_as_string() {
+    let value = Int256Parts {
+        hi_hi: 1,
+        hi_lo: 2,
+        lo_hi: 3,
+        lo_lo: 4,
+    };
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("Int256Parts".to_string(), xdr),
+        Ok("\"6277101735386680764516354157049543343084444891548699590660\"".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_scval_u128_renders_as_string() {
+    let value = ScVal::U128(UInt128Parts { hi: 1, lo: 2 });
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), xdr),
+        Ok("{\"u128\":\"18446744073709551618\"}".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_scval_i128_renders_as_string() {
+    let value = ScVal::I128(Int128Parts { hi: 1, lo: 2 });
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), xdr),
+        Ok("{\"i128\":\"18446744073709551618\"}".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_scval_u256_renders_as_string() {
+    let value = ScVal::U256(UInt256Parts {
+        hi_hi: 1,
+        hi_lo: 2,
+        lo_hi: 3,
+        lo_lo: 4,
+    });
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), xdr),
+        Ok("{\"u256\":\"6277101735386680764516354157049543343084444891548699590660\"}".to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_scval_i256_renders_as_string() {
+    let value = ScVal::I256(Int256Parts {
+        hi_hi: 1,
+        hi_lo: 2,
+        lo_hi: 3,
+        lo_lo: 4,
+    });
+    let xdr = value.to_xdr_base64(Limits::none()).unwrap();
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), xdr),
+        Ok("{\"i256\":\"6277101735386680764516354157049543343084444891548699590660\"}".to_string()),
     );
 }
