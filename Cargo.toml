@@ -1,6 +1,6 @@
 [package]
 name = "stellar-xdr-json"
-version = "23.0.1"
+version = "26.0.0"
 edition = "2021"
 publish = false
 repository = "https://github.com/stellar/js-stellar-xdr-json"
