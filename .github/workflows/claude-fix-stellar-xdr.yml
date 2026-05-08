@@ -12,8 +12,8 @@ on:
     types: [completed]
 
 # Revoke all default GITHUB_TOKEN permissions at the workflow level. The job
-# below opts in to what it needs. Defense in depth: a future job added without
-# its own `permissions:` block inherits nothing.
+# below opts in to what it needs, so a future job added without its own
+# `permissions:` block inherits nothing.
 permissions: {}
 
 jobs:
@@ -60,7 +60,6 @@ jobs:
       uses: anthropics/claude-code-action@v1
       with:
         claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
-        show_full_output: false
         prompt: |
           The `Rust` CI failed on PR #${{ steps.pr.outputs.number }}, which is a dependabot update of the `stellar-xdr` crate.
 
@@ -68,4 +67,4 @@ jobs:
         # --max-turns caps how many tool-use cycles Claude can run, which bounds
         # token spend per invocation.
         claude_args: |
-          --max-turns 50
+          --max-turns 30
