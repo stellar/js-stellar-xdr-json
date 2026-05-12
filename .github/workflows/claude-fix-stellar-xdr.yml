@@ -11,10 +11,10 @@ on:
     workflows: ["Rust"]
     types: [completed]
 
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+# Revoke all default GITHUB_TOKEN permissions at the workflow level. The job
+# below opts in to what it needs, so a future job added without its own
+# `permissions:` block inherits nothing.
+permissions: {}
 
 jobs:
 
@@ -25,6 +25,10 @@ jobs:
       github.event.workflow_run.actor.login == 'dependabot[bot]' &&
       startsWith(github.event.workflow_run.head_branch, 'dependabot/cargo/stellar-xdr-')
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
     steps:
     - name: Find the PR
       id: pr
@@ -60,3 +64,7 @@ jobs:
           The `Rust` CI failed on PR #${{ steps.pr.outputs.number }}, which is a dependabot update of the `stellar-xdr` crate.
 
           Investigate the failure in workflow run ${{ github.event.workflow_run.html_url }}, push any source changes required to adopt the new `stellar-xdr` version onto this branch, and ensure CI passes.
+        # --max-turns caps how many tool-use cycles Claude can run, which bounds
+        # token spend per invocation.
+        claude_args: |
+          --max-turns 30
