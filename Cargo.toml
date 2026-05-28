@@ -21,11 +21,12 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 # TODO: For use with generating native values.
 # serde-wasm-bindgen = "0.6.5"
 
+# CAP-71 pre-release: per-cap-feature layout, no 'curr' module.
 [dependencies.stellar-xdr]
-version = "26.0.1"
-features = ["std", "curr", "base64", "serde", "serde_json", "schemars"]
-# git = "https://github.com/stellar/rs-stellar-xdr"
-# rev = "89a8bcde36aeda551cb0e3f9aa3e9fcf315fe1cc"
+version = "26.0.0"
+git = "https://github.com/stellar/rs-stellar-xdr"
+rev = "a749b69b3471aec0c20ec431b0297f3414d66421"
+features = ["std", "cap_0071", "base64", "serde", "serde_json", "schemars"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
@@ -42,4 +43,6 @@ strip = "symbols"
 debug-assertions = false
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O", "--enable-bulk-memory"]
+# wasm-opt disabled — local binaryen rejects the bulk-memory ops emitted by the
+# rs-stellar-xdr @ a749b69b dep. Output is unoptimized but functionally correct.
+wasm-opt = false
