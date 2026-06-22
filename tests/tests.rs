@@ -1,6 +1,6 @@
 //! Test suite for the Web and headless browsers.
 
-use stellar_xdr::curr::{
+use stellar_xdr::{
     Int128Parts, Int256Parts, Limits, ScVal, ScVec, UInt128Parts, UInt256Parts, VecM, WriteXdr,
 };
 
@@ -359,6 +359,8 @@ fn list_of_types() {
             "SorobanAuthorizedFunction",
             "SorobanAuthorizedInvocation",
             "SorobanAddressCredentials",
+            "SorobanDelegateSignature",
+            "SorobanAddressCredentialsWithDelegates",
             "SorobanCredentialsType",
             "SorobanCredentials",
             "SorobanAuthorizationEntry",
@@ -373,6 +375,7 @@ fn list_of_types() {
             "HashIdPreimageRevokeId",
             "HashIdPreimageContractId",
             "HashIdPreimageSorobanAuthorization",
+            "HashIdPreimageSorobanAuthorizationWithAddress",
             "MemoType",
             "Memo",
             "TimeBounds",
