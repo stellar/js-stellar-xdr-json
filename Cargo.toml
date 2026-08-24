@@ -21,11 +21,16 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 # TODO: For use with generating native values.
 # serde-wasm-bindgen = "0.6.5"
 
+# Protocol 28 (CAP-0085) pre-release: pinned to rs-stellar-xdr#553
+# (e1170cd9abb9d1d10cf4a3b7ed4091a109f56b71), whose xdr submodule is
+# stellar-xdr#308 head (76218a994f8c5ba752cba368080fb2f89843ad3c).
+# cap_0085_executable_ref adds the externally-managed contract-executable types
+# (ContractExecutableExternalRef, SCV_EXECUTABLE_TAG, CONTRACT_EXECUTABLE_EXTERNAL_REF).
 [dependencies.stellar-xdr]
 version = "27.0.0"
-features = ["std", "base64", "serde", "serde_json", "schemars", "type_enum"]
-# git = "https://github.com/stellar/rs-stellar-xdr"
-# rev = "89a8bcde36aeda551cb0e3f9aa3e9fcf315fe1cc"
+git = "https://github.com/sisuresh/rs-stellar-xdr"
+rev = "e1170cd9abb9d1d10cf4a3b7ed4091a109f56b71"
+features = ["std", "base64", "serde", "serde_json", "schemars", "type_enum", "cap_0085_executable_ref"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
@@ -42,4 +47,7 @@ strip = "symbols"
 debug-assertions = false
 
 [package.metadata.wasm-pack.profile.release]
-wasm-opt = ["-O", "--enable-bulk-memory"]
+# wasm-opt disabled — local binaryen may reject the bulk-memory ops emitted by the
+# rs-stellar-xdr pre-release dep. Output is unoptimized but functionally correct.
+# Re-enable once the pinned rev lands a crates.io release.
+wasm-opt = false

@@ -110,6 +110,7 @@ fn list_of_types() {
             "UInt256Parts",
             "Int256Parts",
             "ContractExecutableType",
+            "ContractExecutableExternalRef",
             "ContractExecutable",
             "ScAddressType",
             "MuxedEd25519Account",

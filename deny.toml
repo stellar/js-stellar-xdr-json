@@ -35,8 +35,9 @@ allow = [
 ]
 deny = [
 ]
-skip = [
-]
+# SPIKE (p28-cap-0085): git-pinned stellar-xdr pulls crate-git-revision 0.0.9 while
+# crates.io stellar-strkey pulls 0.0.6. Remove when the pin flips to version=.
+skip = [{ name = "crate-git-revision", version = "0.0.6" }]
 skip-tree = [
 ]
 
@@ -44,7 +45,9 @@ skip-tree = [
 unknown-registry = "deny"
 unknown-git = "deny"
 allow-registry = ["https://github.com/rust-lang/crates.io-index"]
-allow-git = []
+# SPIKE (p28-cap-0085): stellar-xdr is git-pinned to rs-stellar-xdr#553 (fork) until it
+# releases on crates.io. Revert to allow-git = [] when the pin flips to version=.
+allow-git = ["https://github.com/sisuresh/rs-stellar-xdr"]
 
 [sources.allow-org]
 github = []
