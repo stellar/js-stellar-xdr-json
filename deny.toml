@@ -35,8 +35,10 @@ allow = [
 ]
 deny = [
 ]
-skip = [
-]
+# stellar-xdr 28 build-depends on crate-git-revision 0.0.9 but pins stellar-strkey
+# 0.0.13, which still build-depends on 0.0.6. Both are build-only deps, so nothing
+# extra ships in the wasm. Remove when stellar-xdr loosens the stellar-strkey pin.
+skip = [{ name = "crate-git-revision", version = "0.0.6" }]
 skip-tree = [
 ]
 
