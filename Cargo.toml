@@ -21,11 +21,14 @@ console_error_panic_hook = { version = "0.1.7", optional = true }
 # TODO: For use with generating native values.
 # serde-wasm-bindgen = "0.6.5"
 
+# Protocol 30 (CAP-0087) SPIKE: pinned to rs-stellar-xdr PR #583
+# (f1b0285df1a0cac98aee0ba627c03f307c622cf2), whose xdr submodule is
+# stellar-xdr PR #318 head (84cd9fa6c9ebe162e1d9dbbe89be9b6835498456).
 [dependencies.stellar-xdr]
 version = "28.0.0"
-features = ["std", "base64", "serde", "serde_json", "schemars", "type_enum"]
-# git = "https://github.com/stellar/rs-stellar-xdr"
-# rev = "89a8bcde36aeda551cb0e3f9aa3e9fcf315fe1cc"
+git = "https://github.com/sisuresh/rs-stellar-xdr"
+rev = "f1b0285df1a0cac98aee0ba627c03f307c622cf2"
+features = ["std", "base64", "serde", "serde_json", "schemars", "type_enum", "cap_0087_ml_dsa"]
 
 [dev-dependencies]
 wasm-bindgen-test = "0.3.34"
