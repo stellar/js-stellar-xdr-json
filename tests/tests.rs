@@ -115,6 +115,7 @@ fn list_of_types() {
             "ContractExecutableType",
             "ScAddressType",
             "MuxedEd25519Account",
+            "MuxedContract",
             "ScAddress",
             "ContractExecutableExternalRef",
             "ContractExecutable",
@@ -221,6 +222,8 @@ fn list_of_types() {
             "StellarValue",
             "StellarValueExt",
             "StellarValueProposedValue",
+            "StellarValueSignedMsValue",
+            "StellarValueProposedMsValue",
             "LedgerHeaderFlags",
             "LedgerHeaderExtensionV1",
             "LedgerHeaderExtensionV1Ext",
@@ -486,6 +489,7 @@ fn list_of_types() {
             "Int64",
             "TimePoint",
             "Duration",
+            "TimePointMs",
             "ExtensionPoint",
             "CryptoKeyType",
             "PublicKeyType",
@@ -530,6 +534,31 @@ fn decode_failure() {
     let truncated_xdr = TX_ENV_XDR[..TX_ENV_XDR.len() - 1].to_string();
 
     assert!(stellar_xdr_json::decode("TransactionEnvelope".to_string(), truncated_xdr,).is_err());
+}
+
+// ScVal address holding a muxed contract (CAP-84, protocol 30):
+// WDQSMSBA4Q3BBKDNO2D2L6QP7CV7DJIZRFGFYV2ENOSSWZZFDBENKAAAAAAAAAAAFJEHM
+const SC_VAL_MUXED_CONTRACT_XDR: &str =
+    "AAAAEgAAAAUAAAAAAAAAKuEmSCDkNhCobXaHpfoP+KvxpRmJTFxXRGulK2clGEjV";
+const SC_VAL_MUXED_CONTRACT_JSON: &str =
+    r#"{"address":"WDQSMSBA4Q3BBKDNO2D2L6QP7CV7DJIZRFGFYV2ENOSSWZZFDBENKAAAAAAAAAAAFJEHM"}"#;
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn decode_scval_muxed_contract_address() {
+    assert_eq!(
+        stellar_xdr_json::decode("ScVal".to_string(), SC_VAL_MUXED_CONTRACT_XDR.to_string()),
+        Ok(SC_VAL_MUXED_CONTRACT_JSON.to_string()),
+    );
+}
+
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
+#[test]
+fn encode_scval_muxed_contract_address() {
+    assert_eq!(
+        stellar_xdr_json::encode("ScVal".to_string(), SC_VAL_MUXED_CONTRACT_JSON.to_string()),
+        Ok(SC_VAL_MUXED_CONTRACT_XDR.to_string()),
+    );
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen_test)]
